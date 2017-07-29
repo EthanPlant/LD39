@@ -8,15 +8,19 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.exedo.ld.LudumDare;
+import com.exedo.ld.entities.Battery;
 import com.exedo.ld.entities.Player;
 import com.exedo.ld.ui.Hud;
 import com.exedo.ld.utils.B2WorldCreator;
+import com.exedo.ld.utils.WorldContactListener;
 
 public class GameScreen implements Screen{
     private LudumDare game;
@@ -36,15 +40,19 @@ public class GameScreen implements Screen{
 
     private Player player;
 
+    private Array<Battery> batteries;
+
+    private float spawnCount;
+
     public GameScreen(LudumDare game) {
         this.game = game;
 
         cam = new OrthographicCamera();
-        port = new FitViewport(LudumDare.WIDTH, LudumDare.HEIGHT, cam);
+        port = new FitViewport(LudumDare.WIDTH / LudumDare.PPM, LudumDare.HEIGHT / LudumDare.PPM, cam);
 
         mapLoader = new TmxMapLoader();
         map = mapLoader.load("map.tmx");
-        renderer = new OrthogonalTiledMapRenderer(map);
+        renderer = new OrthogonalTiledMapRenderer(map, 1 / LudumDare.PPM);
         cam.position.set(port.getWorldWidth() / 2, port.getWorldHeight() / 2, 0);
 
         hud = new Hud(game.getBatch());
@@ -54,6 +62,10 @@ public class GameScreen implements Screen{
         creator = new B2WorldCreator(this);
 
         player = new Player(this);
+
+        batteries = new Array<Battery>();
+
+        world.setContactListener(new WorldContactListener());
     }
 
     @Override
@@ -62,20 +74,21 @@ public class GameScreen implements Screen{
     }
 
     public void handleInput(float delta) {
+        player.body.setLinearVelocity(0, 0);
         if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            player.body.setLinearVelocity(0, 5);
+            player.body.setLinearVelocity(0, 3);
             player.setRegion(player.textureUp);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            player.body.setLinearVelocity(0, -5);
+            player.body.setLinearVelocity(0, -3);
             player.setRegion(player.textureDown);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            player.body.setLinearVelocity(-5, 0);
+            player.body.setLinearVelocity(-3, 0);
             player.setRegion(player.textureLeft);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            player.body.setLinearVelocity(5, 0);
+            player.body.setLinearVelocity(3, 0);
             player.setRegion(player.textureRight);
         }
     }
@@ -83,6 +96,7 @@ public class GameScreen implements Screen{
     public void update(float delta) {
         handleInput(delta);
 
+        spawn(delta);
 
         world.step(1/60f, 6, 2);
 
@@ -92,6 +106,29 @@ public class GameScreen implements Screen{
 
         cam.update();
         renderer.setView(cam);
+
+        for(int i = 0; i < batteries.size; i++) {
+            Battery b = batteries.get(i);
+            b.update(delta);
+            if(b.collected) {
+                hud.addScore();
+                hud.setFuel(1);
+                batteries.removeIndex(i);
+            }
+        }
+
+        if(hud.getFuel() == 0) {
+            game.setScreen(new GameOver(game));
+        }
+    }
+
+    public void spawn(float delta) {
+        spawnCount += delta;
+        if(spawnCount >= 1) {
+            Battery b = new Battery(this,  MathUtils.random(16 / LudumDare.PPM, (640 - 16) / LudumDare.PPM), MathUtils.random(16 / LudumDare.PPM, (360 - 16) / LudumDare.PPM));
+            batteries.add(b);
+            spawnCount = 0;
+        }
     }
 
     @Override
@@ -109,6 +146,9 @@ public class GameScreen implements Screen{
 
         game.getBatch().begin();
         player.draw(game.getBatch());
+            for (Battery b : batteries) {
+                b.draw(game.getBatch());
+            }
         game.getBatch().end();
 
         game.getBatch().setProjectionMatrix(hud.stage.getCamera().combined);

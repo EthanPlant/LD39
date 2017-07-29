@@ -20,6 +20,8 @@ public class Hud implements Disposable{
     private int seconds;
     private int minutes;
     private int score;
+    private int maxFuel;
+    private int fuel;
 
     Label countdownLabel;
     Label scoreLabel;
@@ -29,6 +31,8 @@ public class Hud implements Disposable{
         minutes = 0;
         seconds = 0;
         score = 0;
+        maxFuel = 10;
+        fuel = maxFuel;
 
         port = new FitViewport(LudumDare.WIDTH, LudumDare.HEIGHT);
         stage = new Stage(port, sb);
@@ -39,7 +43,7 @@ public class Hud implements Disposable{
 
         countdownLabel = new Label(minutes + ":" + String.format("%02d", seconds), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         scoreLabel = new Label("Fuel collected: " + score, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        fuelLabel = new Label("FUEL: 10/10", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        fuelLabel = new Label("FUEL: " + fuel + "/" + maxFuel, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
 
         table.add(countdownLabel).expandX().padTop(10);
         table.add(scoreLabel).expandX().padTop(10);
@@ -56,15 +60,20 @@ public class Hud implements Disposable{
                 minutes++;
                 seconds = 0;
             }
+            fuel--;
             countdownLabel.setText(minutes + ":" + String.format("%02d", seconds));
             timeCount = 0;
         }
+        fuelLabel.setText("FUEL: " + fuel + "/" + maxFuel);
     }
 
     public void addScore() {
         score ++;
         scoreLabel.setText("Fuel collected: " + score);
     }
+
+    public void setFuel(int value) {fuel += value; }
+    public int getFuel() {return fuel; }
 
     @Override
     public void dispose() {
