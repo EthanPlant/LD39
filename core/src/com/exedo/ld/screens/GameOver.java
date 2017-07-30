@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.Texture;
 import com.exedo.ld.LudumDare;
 
 public class GameOver implements Screen{
@@ -12,15 +12,15 @@ public class GameOver implements Screen{
 
     OrthographicCamera cam;
 
-    private BitmapFont font;
+    private Texture texture;
 
     public GameOver(LudumDare game) {
         this.game = game;
 
-        font = new BitmapFont();
+        texture = new Texture(Gdx.files.internal("gameover.png"));
 
         cam = new OrthographicCamera();
-        cam.setToOrtho(false, 640, 360);
+        cam.setToOrtho(false, 1920, 1080);
     }
 
     @Override
@@ -30,12 +30,13 @@ public class GameOver implements Screen{
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        game.getBatch().setProjectionMatrix(cam.combined);
+
         game.getBatch().begin();
-        font.draw(game.getBatch(), "Game over!", 275, 250);
-        font.draw(game.getBatch(), "Click anywhere to play again!", 212, 360/2);
+        game.getBatch().draw(texture, 0, 0, cam.viewportWidth, cam.viewportHeight);
         game.getBatch().end();
 
             if(Gdx.input.isTouched()) {
@@ -66,6 +67,6 @@ public class GameOver implements Screen{
 
     @Override
     public void dispose() {
-        font.dispose();
+        texture.dispose();
     }
 }

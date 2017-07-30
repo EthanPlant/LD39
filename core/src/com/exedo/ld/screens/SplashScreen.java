@@ -7,20 +7,21 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.exedo.ld.LudumDare;
 
-public class MainMenu implements Screen{
+public class SplashScreen implements Screen {
     private LudumDare game;
-
-    OrthographicCamera cam;
-
+    private OrthographicCamera cam;
     private Texture texture;
 
-    public MainMenu(LudumDare game) {
-        this.game = game;
+    private float timeCount;
 
-        texture = new Texture(Gdx.files.internal("mainmenu.png"));
+    public SplashScreen(LudumDare game) {
+        this.game = game;
 
         cam = new OrthographicCamera();
         cam.setToOrtho(false, 1920, 1080);
+        timeCount = 0;
+
+        texture = new Texture(Gdx.files.internal("splash.png"));
     }
 
     @Override
@@ -33,16 +34,16 @@ public class MainMenu implements Screen{
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        cam.update();
-        game.getBatch().setProjectionMatrix(cam.combined);
-
-        game.getBatch().begin();
-        game.getBatch().draw(texture, 0, 0, cam.viewportWidth, cam.viewportHeight);
-        game.getBatch().end();
-
-        if(Gdx.input.isTouched()) {
-            game.setScreen(new GameScreen(game));
+        timeCount += delta;
+        if(timeCount >= 2) {
+            game.setScreen(new MainMenu(game));
             dispose();
+        } else {
+            game.getBatch().setProjectionMatrix(cam.combined);
+
+            game.getBatch().begin();
+            game.getBatch().draw(texture, 0, 0, cam.viewportWidth, cam.viewportHeight);
+            game.getBatch().end();
         }
     }
 

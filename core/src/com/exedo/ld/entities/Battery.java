@@ -1,6 +1,7 @@
 package com.exedo.ld.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -16,7 +17,12 @@ public class Battery extends Sprite{
     public World world;
     public Body body;
     public Texture texture;
+
+    private Sound pickup;
+    private Sound pickup10;
+
     private GameScreen screen;
+
     public boolean collected;
     public boolean destroyed;
 
@@ -27,6 +33,10 @@ public class Battery extends Sprite{
         destroyed = false;
 
         texture = new Texture(Gdx.files.internal("battery.png"));
+
+        pickup = Gdx.audio.newSound(Gdx.files.internal("battery.wav"));
+        pickup10 = Gdx.audio.newSound(Gdx.files.internal("battery10.wav"));
+
         setPosition(x, y);
         defineBattery();
         setBounds(0, 0, 16 / LudumDare.PPM, 16 / LudumDare.PPM);
@@ -50,14 +60,17 @@ public class Battery extends Sprite{
         if(collected && !destroyed) {
             world.destroyBody(body);
             destroyed = true;
+            if((screen.hud.getScore() + 1) % 10 == 0) {
+                pickup10.play();
+            }  else {
+                pickup.play();
+            }
         } else if(!destroyed) {
             setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
         }
     }
 
-    public void collect() {
-        collected = true;
-    }
+    public void collect() {collected = true; }
 
     public void draw(Batch batch) {
         if(!destroyed) {

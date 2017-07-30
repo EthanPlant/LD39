@@ -1,5 +1,6 @@
 package com.exedo.ld.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -34,16 +35,16 @@ public class Hud implements Disposable{
         maxFuel = 10;
         fuel = maxFuel;
 
-        port = new FitViewport(LudumDare.WIDTH, LudumDare.HEIGHT);
+        port = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage = new Stage(port, sb);
 
         Table table = new Table();
         table.top();
         table.setFillParent(true);
 
-        countdownLabel = new Label(minutes + ":" + String.format("%02d", seconds), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        scoreLabel = new Label("Fuel collected: " + score, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        fuelLabel = new Label("FUEL: " + fuel + "/" + maxFuel, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        countdownLabel = new Label(minutes + ":" + String.format("%02d", seconds), new Label.LabelStyle(new BitmapFont(Gdx.files.internal("hud.fnt")), Color.WHITE));
+        scoreLabel = new Label("Batteries collected: " + score, new Label.LabelStyle(new BitmapFont(Gdx.files.internal("hud.fnt")), Color.WHITE));
+        fuelLabel = new Label("ENERGY: " + fuel + "/" + maxFuel, new Label.LabelStyle(new BitmapFont(Gdx.files.internal("hud.fnt")), Color.WHITE));
 
         table.add(countdownLabel).expandX().padTop(10);
         table.add(scoreLabel).expandX().padTop(10);
@@ -64,16 +65,17 @@ public class Hud implements Disposable{
             countdownLabel.setText(minutes + ":" + String.format("%02d", seconds));
             timeCount = 0;
         }
-        fuelLabel.setText("FUEL: " + fuel + "/" + maxFuel);
+        fuelLabel.setText("ENERGY: " + fuel + "/" + maxFuel);
     }
 
     public void addScore() {
         score ++;
-        scoreLabel.setText("Fuel collected: " + score);
+        scoreLabel.setText("Batteries collected: " + score);
     }
 
     public void setFuel(int value) {fuel += value; }
     public int getFuel() {return fuel; }
+    public int getScore() {return score; }
 
     @Override
     public void dispose() {

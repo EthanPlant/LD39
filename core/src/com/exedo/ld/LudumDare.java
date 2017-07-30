@@ -2,7 +2,7 @@ package com.exedo.ld;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.exedo.ld.screens.MainMenu;
+import com.exedo.ld.screens.SplashScreen;
 
 public class LudumDare extends Game {
 	public static final int WIDTH = 640;
@@ -14,7 +14,7 @@ public class LudumDare extends Game {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		setScreen(new MainMenu(this));
+		setScreen(new SplashScreen(this));
 	}
 
 	@Override

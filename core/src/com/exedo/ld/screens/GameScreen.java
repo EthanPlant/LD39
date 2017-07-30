@@ -3,6 +3,8 @@ package com.exedo.ld.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -28,7 +30,7 @@ public class GameScreen implements Screen{
     private OrthographicCamera cam;
     private Viewport port;
 
-    private Hud hud;
+    public Hud hud;
 
     private TmxMapLoader mapLoader;
     private TiledMap map;
@@ -43,6 +45,14 @@ public class GameScreen implements Screen{
     private Array<Battery> batteries;
 
     private float spawnCount;
+    private float timeCount;
+    private float totalTime;
+
+    private Music bgm;
+
+    private Sound powerLow;
+    private Sound powerCrit;
+    private Sound noPower;
 
     public GameScreen(LudumDare game) {
         this.game = game;
@@ -66,6 +76,15 @@ public class GameScreen implements Screen{
         batteries = new Array<Battery>();
 
         world.setContactListener(new WorldContactListener());
+
+        bgm = Gdx.audio.newMusic(Gdx.files.internal("bgm.ogg"));
+
+        powerLow = Gdx.audio.newSound(Gdx.files.internal("powerlow.wav"));
+        powerCrit = Gdx.audio.newSound(Gdx.files.internal("powercrit.wav"));
+        noPower = Gdx.audio.newSound(Gdx.files.internal("loss.wav"));
+
+        bgm.setLooping(true);
+        bgm.play();
     }
 
     @Override
@@ -94,6 +113,8 @@ public class GameScreen implements Screen{
     }
 
     public void update(float delta) {
+        timeCount += delta;
+
         handleInput(delta);
 
         spawn(delta);
@@ -117,17 +138,65 @@ public class GameScreen implements Screen{
             }
         }
 
-        if(hud.getFuel() == 0) {
-            game.setScreen(new GameOver(game));
+        if(timeCount >= 1) {
+
+            if (hud.getFuel() == 4) {
+                powerLow.play();
+            }
+
+            if (hud.getFuel() == 2) {
+                powerCrit.play();
+            }
+
+            if (hud.getFuel() == 0) {
+                noPower.play();
+                game.setScreen(new GameOver(game));
+                bgm.pause();
+            }
+
+            timeCount = 0;
         }
     }
 
     public void spawn(float delta) {
+        totalTime += delta;
         spawnCount += delta;
-        if(spawnCount >= 1) {
-            Battery b = new Battery(this,  MathUtils.random(16 / LudumDare.PPM, (640 - 16) / LudumDare.PPM), MathUtils.random(16 / LudumDare.PPM, (360 - 16) / LudumDare.PPM));
-            batteries.add(b);
-            spawnCount = 0;
+        if(totalTime <= 30) {
+            if(spawnCount >= 1) {
+                Battery b = new Battery(this, MathUtils.random(16 / LudumDare.PPM, (640 - 16) / LudumDare.PPM), MathUtils.random(16 / LudumDare.PPM, (360 - 16) / LudumDare.PPM));
+                batteries.add(b);
+                spawnCount = 0;
+            }
+        } else if(totalTime <= 60) {
+            if(spawnCount >= 1.25) {
+                Battery b = new Battery(this, MathUtils.random(16 / LudumDare.PPM, (640 - 16) / LudumDare.PPM), MathUtils.random(16 / LudumDare.PPM, (360 - 16) / LudumDare.PPM));
+                batteries.add(b);
+                spawnCount = 0;
+            }
+        } else if(totalTime <= 120) {
+            if(spawnCount >= 1.5) {
+                Battery b = new Battery(this, MathUtils.random(16 / LudumDare.PPM, (640 - 16) / LudumDare.PPM), MathUtils.random(16 / LudumDare.PPM, (360 - 16) / LudumDare.PPM));
+                batteries.add(b);
+                spawnCount = 0;
+            }
+        } else if(totalTime <= 240) {
+            if(spawnCount >= 2) {
+                Battery b = new Battery(this, MathUtils.random(16 / LudumDare.PPM, (640 - 16) / LudumDare.PPM), MathUtils.random(16 / LudumDare.PPM, (360 - 16) / LudumDare.PPM));
+                batteries.add(b);
+                spawnCount = 0;
+            }
+        } else if(totalTime <= 300) {
+            if(spawnCount >= 2.5) {
+                Battery b = new Battery(this, MathUtils.random(16 / LudumDare.PPM, (640 - 16) / LudumDare.PPM), MathUtils.random(16 / LudumDare.PPM, (360 - 16) / LudumDare.PPM));
+                batteries.add(b);
+                spawnCount = 0;
+            }
+        } else {
+            if(spawnCount >= 3) {
+                Battery b = new Battery(this, MathUtils.random(16 / LudumDare.PPM, (port.getWorldWidth() - 16) / LudumDare.PPM), MathUtils.random(16 / LudumDare.PPM, (port.getWorldHeight() - 16) / LudumDare.PPM));
+                batteries.add(b);
+                spawnCount = 0;
+            }
         }
     }
 
@@ -139,7 +208,7 @@ public class GameScreen implements Screen{
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         renderer.render();
-        b2dr.render(world, cam.combined);
+//        b2dr.render(world, cam.combined);
 
         cam.update();
         game.getBatch().setProjectionMatrix(cam.combined);
@@ -185,6 +254,7 @@ public class GameScreen implements Screen{
         renderer.dispose();
         world.dispose();
         b2dr.dispose();
+        bgm.dispose();
         hud.dispose();
     }
 }
