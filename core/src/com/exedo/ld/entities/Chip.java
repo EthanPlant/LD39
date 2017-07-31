@@ -13,7 +13,7 @@ import com.exedo.ld.LudumDare;
 import com.exedo.ld.screens.GameScreen;
 import com.exedo.ld.screens.SplashScreen;
 
-public class Battery extends Sprite{
+public class Chip extends Sprite {
     public World world;
     public Body body;
 
@@ -22,19 +22,19 @@ public class Battery extends Sprite{
     public boolean collected;
     public boolean destroyed;
 
-    public Battery(GameScreen screen, float x, float y) {
+    public Chip(GameScreen screen, float x, float y) {
         this.world = screen.getWorld();
         this.screen = screen;
-        collected = false;
-        destroyed = false;
+        this.collected = false;
+        this.destroyed = false;
 
         setPosition(x, y);
-        defineBattery();
+        defineChip();
         setBounds(0, 0, 16 / LudumDare.PPM, 16 / LudumDare.PPM);
-        setRegion(SplashScreen.manager.get("battery.png", Texture.class));
+        setRegion(SplashScreen.manager.get("chip.png", Texture.class));
     }
 
-    public void defineBattery() {
+    public void defineChip() {
         BodyDef bDef = new BodyDef();
         bDef.position.set(getX(), getY());
         bDef.type = BodyDef.BodyType.StaticBody;
@@ -48,15 +48,11 @@ public class Battery extends Sprite{
     }
 
     public void update(float delta) {
-        if(collected && !destroyed) {
+        if (collected && !destroyed) {
             world.destroyBody(body);
             destroyed = true;
-            if((screen.hud.getScore() + 1) % 10 == 0) {
-                SplashScreen.manager.get("battery10.wav", Sound.class).play();
-            }  else {
-                SplashScreen.manager.get("battery.wav", Sound.class).play();
-            }
-        } else if(!destroyed) {
+            SplashScreen.manager.get("efficient.wav", Sound.class).play();
+        } else if (!destroyed) {
             setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
         }
     }

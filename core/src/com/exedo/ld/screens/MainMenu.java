@@ -12,12 +12,8 @@ public class MainMenu implements Screen{
 
     OrthographicCamera cam;
 
-    private Texture texture;
-
     public MainMenu(LudumDare game) {
         this.game = game;
-
-        texture = new Texture(Gdx.files.internal("mainmenu.png"));
 
         cam = new OrthographicCamera();
         cam.setToOrtho(false, 1920, 1080);
@@ -37,7 +33,7 @@ public class MainMenu implements Screen{
         game.getBatch().setProjectionMatrix(cam.combined);
 
         game.getBatch().begin();
-        game.getBatch().draw(texture, 0, 0, cam.viewportWidth, cam.viewportHeight);
+        game.getBatch().draw(SplashScreen.manager.get("mainmenu.png", Texture.class), 0, 0, cam.viewportWidth, cam.viewportHeight);
         game.getBatch().end();
 
         if(Gdx.input.isTouched()) {
@@ -68,6 +64,6 @@ public class MainMenu implements Screen{
 
     @Override
     public void dispose() {
-        texture.dispose();
+        SplashScreen.manager.unload("mainmenu.png");
     }
 }

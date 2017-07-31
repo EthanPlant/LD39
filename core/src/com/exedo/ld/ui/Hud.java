@@ -12,12 +12,13 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.exedo.ld.LudumDare;
 
-
 public class Hud implements Disposable{
     public Stage stage;
     private Viewport port;
 
     private float timeCount;
+    private float fuelTimer;
+    private float consumptionTime;
     private int seconds;
     private int minutes;
     private int score;
@@ -33,6 +34,7 @@ public class Hud implements Disposable{
         seconds = 0;
         score = 0;
         maxFuel = 10;
+        consumptionTime = 1;
         fuel = maxFuel;
 
         port = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -55,17 +57,29 @@ public class Hud implements Disposable{
 
     public void update(float delta) {
         timeCount += delta;
+        fuelTimer += delta;
         if(timeCount >= 1) {
             seconds++;
             if(seconds >= 60) {
                 minutes++;
                 seconds = 0;
             }
-            fuel--;
             countdownLabel.setText(minutes + ":" + String.format("%02d", seconds));
             timeCount = 0;
         }
+        decreaseFuel();
         fuelLabel.setText("ENERGY: " + fuel + "/" + maxFuel);
+
+        LudumDare.score = score;
+        LudumDare.minutes = minutes;
+        LudumDare.seconds = seconds;
+    }
+
+    public void decreaseFuel() {
+        if(fuelTimer >= consumptionTime) {
+            fuel--;
+            fuelTimer = 0;
+        }
     }
 
     public void addScore() {
@@ -73,9 +87,19 @@ public class Hud implements Disposable{
         scoreLabel.setText("Batteries collected: " + score);
     }
 
-    public void setFuel(int value) {fuel += value; }
+    public void setFuel(int value) {
+        if(fuel + value > maxFuel) {
+            fuel = maxFuel;
+        } else {
+            fuel += value;
+        }
+    }
     public int getFuel() {return fuel; }
+    public int getMaxFuel() {return maxFuel; }
     public int getScore() {return score; }
+    public void setMaxFuel(int value) {maxFuel += value; }
+    public void setConsumptionTime(float value) {consumptionTime = value; }
+    public float getConsumptionTime() {return consumptionTime; }
 
     @Override
     public void dispose() {

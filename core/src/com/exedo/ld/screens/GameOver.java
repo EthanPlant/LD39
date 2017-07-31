@@ -5,6 +5,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.exedo.ld.LudumDare;
 
 public class GameOver implements Screen{
@@ -12,15 +14,22 @@ public class GameOver implements Screen{
 
     OrthographicCamera cam;
 
-    private Texture texture;
+    BitmapFont font;
+
+    String str;
+    GlyphLayout layout;
 
     public GameOver(LudumDare game) {
         this.game = game;
 
-        texture = new Texture(Gdx.files.internal("gameover.png"));
-
         cam = new OrthographicCamera();
         cam.setToOrtho(false, 1920, 1080);
+
+        font = new BitmapFont(Gdx.files.internal("gameoverfont.fnt"), false);
+
+        str = "You lasted " + LudumDare.minutes + ":" + String.format("%02d", LudumDare.seconds) + " and gathered " + LudumDare.score + " batteries.";
+        layout = new GlyphLayout(font, str);
+
     }
 
     @Override
@@ -36,12 +45,12 @@ public class GameOver implements Screen{
         game.getBatch().setProjectionMatrix(cam.combined);
 
         game.getBatch().begin();
-        game.getBatch().draw(texture, 0, 0, cam.viewportWidth, cam.viewportHeight);
+        game.getBatch().draw(SplashScreen.manager.get("gameover.png", Texture.class), 0, 0, cam.viewportWidth, cam.viewportHeight);
+        font.draw(game.getBatch(), str, cam.viewportWidth / 2 - layout.width / 2, 500);
         game.getBatch().end();
 
             if(Gdx.input.isTouched()) {
                 game.setScreen(new GameScreen(game));
-                dispose();
         }
     }
 
@@ -67,6 +76,6 @@ public class GameOver implements Screen{
 
     @Override
     public void dispose() {
-        texture.dispose();
+
     }
 }
